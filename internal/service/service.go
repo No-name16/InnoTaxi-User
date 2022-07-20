@@ -1,14 +1,18 @@
 package service
 
-import "github.com/No-name16/InnoTaxi-User/InnoTaxi-User/internal/repository"
-
-type Authorization interface {
+type Repository interface {
 }
 
 type Service struct {
-	repo Authorization
+	repo Repository
 }
 
-func NewService(repo *repository.Repository) *Service {
-	return &Service{}
+func NewService(repo Repository) *Service {
+	return &Service{
+		repo: repo,
+	}
+}
+func (service *Service) Register(login, password string) error {
+
+	return nil
 }

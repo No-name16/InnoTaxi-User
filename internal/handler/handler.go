@@ -1,15 +1,18 @@
 package handler
 
 import (
-	"github.com/No-name16/InnoTaxi-User/InnoTaxi-User/internal/service"
 	"github.com/gin-gonic/gin"
 )
 
-type Handler struct {
-	service *service.Service
+type Service interface {
+	Register(login, password string) error
 }
 
-func NewHandler(service *service.Service) *Handler {
+type Handler struct {
+	service Service
+}
+
+func NewHandler(service Service) *Handler {
 	return &Handler{service: service}
 }
 

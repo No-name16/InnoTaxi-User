@@ -5,11 +5,24 @@ import (
 	"github.com/No-name16/InnoTaxi-User/internal/repository"
 	"github.com/No-name16/InnoTaxi-User/internal/service"
 	"github.com/joho/godotenv"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	"log"
+	"io"
 	"net/http"
 	"os"
 )
+
+func init() {
+	file, err := os.OpenFile("logrus.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err == nil {
+		log.SetOutput(file)
+	} else {
+		log.Info("Failed to log to file, using default stderr")
+	}
+	log.SetFormatter(&log.JSONFormatter{})
+	multi := io.MultiWriter(file, os.Stdout)
+	log.SetOutput(multi)
+}
 
 func main() {
 	if err := initConfig(); err != nil {

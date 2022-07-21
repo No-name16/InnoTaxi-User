@@ -1,0 +1,1 @@
+{"level":"fatal","msg":"failed to initialize db: dial tcp [::1]:5432: connectex: No connection could be made because the target machine actively refused it.","time":"2022-07-21T21:17:34+03:00"}

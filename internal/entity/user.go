@@ -2,8 +2,10 @@ package entity
 
 type User struct {
 	Id          int    `json:"-"`
-	Name        string `json:"name"`
-	PhoneNumber string `json:"phoneNumber"`
+	Name        string `json:"name" binding:"required"`
+	PhoneNumber string `json:"phoneNumber" binding:"required"`
 	Email       string `json:"email"`
-	Password    string `json:"password"`
+	Password    string `json:"password" binding:"required"`
+	CreatedAt   string `json:"createdAt"`
+	UpdatedAt   string `json:"updatedAt"`
 }

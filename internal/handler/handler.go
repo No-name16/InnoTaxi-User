@@ -1,11 +1,12 @@
 package handler
 
 import (
+	"github.com/No-name16/InnoTaxi-User/internal/entity"
 	"github.com/gin-gonic/gin"
 )
 
 type Service interface {
-	Register(login, password string) error
+	CreateUser(user entity.User) (int, error)
 }
 
 type Handler struct {

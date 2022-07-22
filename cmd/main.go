@@ -22,6 +22,18 @@ func init() {
 	log.SetFormatter(&log.JSONFormatter{})
 	multi := io.MultiWriter(file, os.Stdout)
 	log.SetOutput(multi)
+
+	//var (
+	//	flags = flag.NewFlagSet("goose", flag.ExitOnError)
+	//	dir   = flags.String("dir", ".", "internal/db")
+	//)
+	//
+	//if err := goose.SetDialect("postgres"); err != nil {
+	//	log.Fatal(err)
+	//}
+	//if err := goose.Run("up", "postgres", *dir, "postgres://postgres:qwerty@localhost:5432/postgres?sslmode=disable"); err != nil {
+	//	log.Fatalf("goose run: %v", err)
+	//}
 }
 
 func main() {

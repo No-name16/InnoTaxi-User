@@ -7,6 +7,8 @@ import (
 
 type Service interface {
 	CreateUser(user entity.User) (int, error)
+	GenerateToken(number, password string) (string, error)
+	ParseToken(token string) (int, error)
 }
 
 type Handler struct {
@@ -24,6 +26,10 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	{
 		auth.POST("/sign-up", h.signUp)
 		auth.POST("/sign-in", h.signIn)
+	}
+	api := router.Group("/api", h.userIdentity)
+	{
+		api.POST("/", h.GetUsersId)
 	}
 
 	return router

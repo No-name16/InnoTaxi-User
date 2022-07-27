@@ -5,3 +5,10 @@ db:
   username: "postgres"
   dbname: "postgres"
   sslmode: "disable"
+mongodb:
+  host: "localhost"
+  port: "27017"
+  password:
+  username:
+  dbname: "mongodb"
+  authdb:

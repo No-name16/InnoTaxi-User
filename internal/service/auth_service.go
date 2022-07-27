@@ -4,9 +4,10 @@ import (
 	"crypto/sha1"
 	"errors"
 	"fmt"
+	"time"
+
 	"github.com/No-name16/InnoTaxi-User/internal/entity"
 	"github.com/dgrijalva/jwt-go"
-	"time"
 )
 
 type tokenClaims struct {

@@ -1,39 +1,46 @@
 package main
 
 import (
+	"context"
+	"github.com/pressly/goose/v3"
+	"net/http"
+
+	"github.com/No-name16/InnoTaxi-User/configs"
 	"github.com/No-name16/InnoTaxi-User/internal/handler"
 	"github.com/No-name16/InnoTaxi-User/internal/repository"
 	"github.com/No-name16/InnoTaxi-User/internal/service"
 	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	"io"
-	"net/http"
-	"os"
+	"go.mongodb.org/mongo-driver/mongo"
+	"gopkg.in/mgo.v2/bson"
 )
 
-func init() {
-	file, err := os.OpenFile("logrus.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-	if err == nil {
-		log.SetOutput(file)
-	} else {
-		log.Info("Failed to log to file, using default stderr")
-	}
-	log.SetFormatter(&log.JSONFormatter{})
-	multi := io.MultiWriter(file, os.Stdout)
-	log.SetOutput(multi)
+type dbHook struct {
+	*mongo.Database
+	ctx context.Context
+}
 
-	//var (
-	//	flags = flag.NewFlagSet("goose", flag.ExitOnError)
-	//	dir   = flags.String("dir", ".", "internal/db")
-	//)
-	//
-	//if err := goose.SetDialect("postgres"); err != nil {
-	//	log.Fatal(err)
-	//}
-	//if err := goose.Run("up", "postgres", *dir, "postgres://postgres:qwerty@localhost:5432/postgres?sslmode=disable"); err != nil {
-	//	log.Fatalf("goose run: %v", err)
-	//}
+func (dbHook) Levels() []log.Level {
+	return []log.Level{
+		log.PanicLevel,
+		log.FatalLevel,
+		log.ErrorLevel,
+		log.WarnLevel,
+		log.InfoLevel,
+		log.DebugLevel,
+	}
+}
+
+func (db dbHook) Fire(e *log.Entry) error {
+	collection := db.Collection("logs")
+	_, err := collection.InsertOne(db.ctx, bson.M{
+		"level":   e.Level.String(),
+		"created": e.Time.Format("15:04:05 3:04:05 PM"),
+		"msg":     e.Message,
+	})
+
+	return err
 }
 
 func main() {
@@ -45,16 +52,34 @@ func main() {
 		log.Fatalf("error loading enveroment variables: %s", err.Error())
 	}
 
-	db, err := repository.NewPostgresDB(repository.Config{
-		Host:     viper.GetString("db.host"),
-		Port:     viper.GetString("db.port"),
-		Username: viper.GetString("db.username"),
-		Password: os.Getenv("DB_PASSWORD"),
-		DBName:   viper.GetString("db.dbname"),
-		SSLMode:  viper.GetString("db.sslmode"),
-	})
+	ctx := context.TODO()
+	configMongo, err := configs.GetConfigMongo()
+	if err != nil {
+		log.Fatalf("error setting mongo configs: %s", err.Error())
+	}
+	dblog, err2 := repository.NewMongoDB(context.Background(), configMongo)
+	if err2 != nil {
+		log.Fatalf("failed to initialize db for logs: %s", err.Error())
+	}
+	log.AddHook(dbHook{ctx: ctx, Database: dblog})
+	log.SetFormatter(&log.JSONFormatter{})
+
+	configPostgres, err := configs.GetConfigPostgres()
+	if err != nil {
+		log.Fatalf("error setting mongo configs: %s", err.Error())
+		return
+	}
+	db, err := repository.NewPostgresDB(configPostgres)
 	if err != nil {
 		log.Fatalf("failed to initialize db: %s", err.Error())
+	}
+
+	if err := goose.SetDialect("postgres"); err != nil {
+		log.Errorf("failed to set dialect to goose: %s", err.Error())
+	}
+
+	if err := goose.Up(db.DB, "internal/db"); err != nil {
+		log.Errorf("failed to do migration: %s", err.Error())
 	}
 
 	repos := repository.NewRepository(db)
@@ -68,5 +93,6 @@ func main() {
 func initConfig() error {
 	viper.AddConfigPath("configs")
 	viper.SetConfigName("config")
+	viper.AutomaticEnv()
 	return viper.ReadInConfig()
 }

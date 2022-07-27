@@ -1,8 +1,9 @@
 package service
 
 import (
-	"github.com/No-name16/InnoTaxi-User/internal/entity"
 	"time"
+
+	"github.com/No-name16/InnoTaxi-User/internal/entity"
 )
 
 const (

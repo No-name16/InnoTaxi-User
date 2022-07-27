@@ -2,21 +2,18 @@ package repository
 
 import (
 	"fmt"
+
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 )
 
-const (
-	userTable = "users"
-)
-
 type Config struct {
-	Host     string
-	Port     string
-	Username string
-	Password string
-	DBName   string
-	SSLMode  string
+	Host     string `validate:"required"`
+	Port     string `validate:"required"`
+	Username string `validate:"required"`
+	Password string `validate:"required"`
+	DBName   string `validate:"required"`
+	SSLMode  string `validate:"required"`
 }
 
 func NewPostgresDB(cfg Config) (*sqlx.DB, error) {

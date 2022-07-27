@@ -1,6 +1,7 @@
 package service
 
 import (
+	"crypto/rand"
 	"crypto/sha1"
 	"errors"
 	"fmt"
@@ -24,6 +25,8 @@ func (service *Service) CreateUser(user entity.User) (int, error) {
 	return service.repo.CreateUser(user)
 }
 func (service *Service) GeneratePasswordHash(password string) string {
+	salt := make([]byte, 8)
+	rand.Read(salt)
 	hash := sha1.New()
 	hash.Write([]byte(password))
 	return fmt.Sprintf("%x", hash.Sum([]byte(salt)))

@@ -1,0 +1,14 @@
+port: ":8000"
+db:
+  host: "localhost"
+  port: "5432"
+  username: "postgres"
+  dbname: "postgres"
+  sslmode: "disable"
+mongodb:
+  host: "localhost"
+  port: "27017"
+  password:
+  username:
+  dbname: "mongodb"
+  authdb:
